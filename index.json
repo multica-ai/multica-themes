@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generated_at": "2026-11-10T11:23:40.659Z",
+  "generated_at": "2026-11-10T16:20:26.426Z",
   "themes": [
     {
       "id": "linen",
@@ -24,6 +24,29 @@
         "dark": "screenshots/linen/dark.png"
       },
       "updated_at": "2026-11-10T11:22:36Z"
+    },
+    {
+      "id": "flexoki",
+      "name": "Flexoki",
+      "author": "Multica",
+      "repo": "multica-ai/multica-flexoki",
+      "description": "The inky colour scheme for prose and code by Steph Ango: warm paper, black ink, seven accents.",
+      "modes": [
+        "light",
+        "dark"
+      ],
+      "version": "1.0.0",
+      "tag": "v1.0.0",
+      "package": {
+        "url": "https://github.com/multica-ai/multica-flexoki/releases/download/v1.0.0/theme.zip",
+        "sha256": "512b80b6ae0bdd0d4a8563ebe67a37d5fc030db38056d966da499b40a7f6796c",
+        "size": 2337
+      },
+      "screenshots": {
+        "light": "screenshots/flexoki/light.png",
+        "dark": "screenshots/flexoki/dark.png"
+      },
+      "updated_at": "2026-11-10T16:12:09Z"
     }
   ]
 }
