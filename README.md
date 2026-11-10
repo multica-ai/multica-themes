@@ -1,6 +1,6 @@
 # Multica themes
 
-The community theme store for [Multica](https://github.com/multica-ai/multica), in beta. Themes listed here appear in **Settings → Appearance → Browse** on Web and Desktop.
+The community theme store for [Multica](https://github.com/multica-ai/multica), in beta. Themes listed here appear in **Settings → Appearance → Manage** on Web and Desktop.
 
 - [`themes.json`](themes.json) lists the themes. Authors add theirs with a pull request; see [CONTRIBUTING.md](CONTRIBUTING.md).
 - [`index.json` on the `index` branch](https://github.com/multica-ai/multica-themes/blob/index/index.json) is what the Multica server reads. A workflow writes it, never a person: for every listed theme it records the latest release that passed the checks, the SHA-256 of that release's `theme.zip`, and screenshots rendered from it (in `screenshots/` on the same branch). The app only installs that exact file.
