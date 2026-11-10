@@ -44,7 +44,7 @@ Add an entry to the end of [`themes.json`](themes.json):
 - `modes` lists the modes the theme is designed for. The store shows a screenshot of each.
 - Keep `name` and `author` to 60 characters and `description` to 300.
 
-Don't edit `index.json` or `screenshots/`; a workflow writes them.
+The `index` branch, with `index.json` and the screenshots, is written by a workflow; don't edit it.
 
 The **Theme check** runs on the pull request and comments with what it found and how the theme looks. It must pass before a maintainer merges.
 

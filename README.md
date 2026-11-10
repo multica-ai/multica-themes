@@ -3,8 +3,8 @@
 The community theme store for [Multica](https://github.com/multica-ai/multica), in beta. Themes listed here appear in **Settings → Appearance → Browse** on Web and Desktop.
 
 - [`themes.json`](themes.json) lists the themes. Authors add theirs with a pull request; see [CONTRIBUTING.md](CONTRIBUTING.md).
-- [`index.json`](index.json) is what the Multica server reads. A workflow writes it, never a person: for every listed theme it records the latest release that passed the checks, the SHA-256 of that release's `theme.zip`, and screenshots rendered from it. The app only installs that exact file.
-- [`screenshots/`](screenshots) holds those screenshots.
+- [`index.json` on the `index` branch](https://github.com/multica-ai/multica-themes/blob/index/index.json) is what the Multica server reads. A workflow writes it, never a person: for every listed theme it records the latest release that passed the checks, the SHA-256 of that release's `theme.zip`, and screenshots rendered from it (in `screenshots/` on the same branch). The app only installs that exact file.
+- `main` only changes through reviewed pull requests; the `index` branch only through the Index workflow.
 
 ## How a theme gets to the app
 
@@ -21,4 +21,4 @@ A self-hosted Multica server reads this registry by default. Set `MULTICA_THEME_
 
 - The checks come from multica-ai/multica `main`. The `MULTICA_REF` repository variable pins another ref.
 - `node --test scripts/lib.test.mjs` runs the registry's own tests.
-- Run the index build locally with a checkout of multica-ai/multica that has its dependencies installed: `GITHUB_TOKEN=… node scripts/build-index.mjs --multica ../multica`.
+- Run the index build locally with a checkout of multica-ai/multica that has its dependencies installed: `GITHUB_TOKEN=… node scripts/build-index.mjs --multica ../multica --index ../index` (a checkout of the `index` branch).

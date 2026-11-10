@@ -1,6 +1,10 @@
 # Rebuilds index.json, the file the Multica server reads, from the latest
 # release of every listed theme. Runs when themes.json changes and every
 # hour, so a new release reaches the store after it passes the checks.
+#
+# index.json and screenshots/ live on the `index` branch: main only changes
+# through reviewed pull requests, and this workflow is the only writer of
+# the index.
 name: Index
 on:
   push:
@@ -17,12 +21,21 @@ concurrency:
   cancel-in-progress: false
 jobs:
   index:
-    runs-on: ubuntu-latest
+    # Playwright cannot install Chromium on Ubuntu 26.04 yet.
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
           path: registry
+          persist-credentials: false
+      - name: Check out the index branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git init -q index && cd index
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          if git fetch -q --depth=1 origin index; then git checkout -q -b index FETCH_HEAD; else git checkout -q --orphan index; fi
       - name: Check out multica-ai/multica
         uses: actions/checkout@v4
         with:
@@ -50,11 +63,11 @@ jobs:
       - name: Build the index
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: node registry/scripts/build-index.mjs --multica multica --report-issues
-      - name: Commit the index
-        working-directory: registry
+        run: node registry/scripts/build-index.mjs --multica multica --index index --report-issues
+      - name: Publish the index
+        working-directory: index
         run: |
-          git add index.json screenshots
+          git add -A index.json screenshots
           if git diff --cached --quiet; then echo "No changes"; exit 0; fi
           git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -qm "Update the theme index"
-          git push
+          git push -q origin HEAD:index

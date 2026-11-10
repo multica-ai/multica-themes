@@ -13,7 +13,8 @@ concurrency:
 jobs:
   check:
     name: Theme check
-    runs-on: ubuntu-latest
+    # Playwright cannot install Chromium on Ubuntu 26.04 yet.
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - name: Check out the registry at the base branch
@@ -54,6 +55,7 @@ jobs:
       - name: Check the themes
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          MULTICA_REF: ${{ vars.MULTICA_REF || 'main' }}
         run: node registry/scripts/check-pr.mjs --base registry/themes.json --head head-themes.json --multica multica --out report
       - name: Record the pull request
         if: always()
