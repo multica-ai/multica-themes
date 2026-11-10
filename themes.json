@@ -14,5 +14,13 @@
     "repo": "multica-ai/multica-flexoki",
     "description": "The inky colour scheme for prose and code by Steph Ango: warm paper, black ink, seven accents.",
     "modes": ["light", "dark"]
+  },
+  {
+    "id": "ms-dos",
+    "name": "MS-DOS",
+    "author": "Multica",
+    "repo": "multica-ai/multica-microsoft-dos",
+    "description": "The 16-colour DOS look with the IBM VGA font: DOS Shell in light mode, a text-mode screen in dark mode.",
+    "modes": ["light", "dark"]
   }
 ]
