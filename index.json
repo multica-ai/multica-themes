@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generated_at": "2026-11-10T16:20:26.426Z",
+  "generated_at": "2026-11-10T19:04:25.545Z",
   "themes": [
     {
       "id": "linen",
@@ -47,6 +47,29 @@
         "dark": "screenshots/flexoki/dark.png"
       },
       "updated_at": "2026-11-10T16:12:09Z"
+    },
+    {
+      "id": "ms-dos",
+      "name": "MS-DOS",
+      "author": "Multica",
+      "repo": "multica-ai/multica-microsoft-dos",
+      "description": "The 16-colour DOS look with the IBM VGA font: DOS Shell in light mode, a text-mode screen in dark mode.",
+      "modes": [
+        "light",
+        "dark"
+      ],
+      "version": "1.0.0",
+      "tag": "v1.0.0",
+      "package": {
+        "url": "https://github.com/multica-ai/multica-microsoft-dos/releases/download/v1.0.0/theme.zip",
+        "sha256": "95f3cc2b136ad9a6c6e5d1da875261dd7cb04599b5930cd024a4ffe9a0b8d59d",
+        "size": 32911
+      },
+      "screenshots": {
+        "light": "screenshots/ms-dos/light.png",
+        "dark": "screenshots/ms-dos/dark.png"
+      },
+      "updated_at": "2026-11-10T19:01:02Z"
     }
   ]
 }
