@@ -55,6 +55,7 @@ jobs:
       - name: Check the themes
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          MULTICA_REF: ${{ vars.MULTICA_REF || 'main' }}
         run: node registry/scripts/check-pr.mjs --base registry/themes.json --head head-themes.json --multica multica --out report
       - name: Record the pull request
         if: always()
