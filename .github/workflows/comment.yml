@@ -1,0 +1,57 @@
+# Posts the Check workflow's report on its pull request. Runs in the base
+# repository's context, so it works for pull requests from forks; it only
+# reads the report as data and never runs code from the pull request.
+name: Comment
+on:
+  workflow_run:
+    workflows: [Check]
+    types: [completed]
+permissions:
+  contents: write
+  pull-requests: write
+  actions: read
+jobs:
+  comment:
+    if: github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: theme-check
+          path: report
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+      - name: Post the report
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          pr=$(tr -dc '0-9' < report/pr.txt)
+          [ -n "$pr" ] || { echo "no pull request number"; exit 1; }
+          # The number comes from the artifact; trust it only if it is the
+          # pull request this run checked.
+          [ "$(gh api "repos/$REPO/pulls/$pr" -q .head.sha)" = "$HEAD_SHA" ] || { echo "pull request $pr is not at $HEAD_SHA"; exit 0; }
+          [ -f report/report.md ] || printf '<!-- multica-themes-check -->\n## Theme check\n\nThe check could not run. See the [workflow run](%s).\n' "${{ github.event.workflow_run.html_url }}" > report/report.md
+          body=$(cat report/report.md)
+          if [ -d report/screenshots ]; then
+            # Screenshots go to the previews branch so the comment can show them.
+            dir="pr-$pr/${HEAD_SHA:0:7}"
+            git init -q previews && cd previews
+            git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/$REPO.git"
+            if git fetch -q --depth=1 origin previews; then git checkout -q -b previews FETCH_HEAD; else git checkout -q --orphan previews; fi
+            mkdir -p "$dir" && cp -R ../report/screenshots/. "$dir/"
+            git add "$dir"
+            git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -qm "Previews for #$pr" || true
+            git push -q origin HEAD:previews
+            cd ..
+            base="https://raw.githubusercontent.com/$REPO/previews/$dir"
+            body=$(printf '%s' "$body" | sed -E "s#\{\{screenshot:([a-z0-9-]+)/(light|dark)\}\}#$base/\1/\2.png#g")
+          fi
+          existing=$(gh api "repos/$REPO/issues/$pr/comments" --paginate -q '.[] | select(.user.login == "github-actions[bot]" and (.body | startswith("<!-- multica-themes-check -->"))) | .id' | head -1)
+          if [ -n "$existing" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$existing" -f body="$body" > /dev/null
+          else
+            gh api "repos/$REPO/issues/$pr/comments" -f body="$body" > /dev/null
+          fi

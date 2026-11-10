@@ -1,0 +1,10 @@
+[
+  {
+    "id": "linen",
+    "name": "Linen",
+    "author": "Multica",
+    "repo": "multica-ai/multica-theme-sample",
+    "description": "Warm paper tones with ink-brown accents. The sample theme: fork it to start your own.",
+    "modes": ["light", "dark"]
+  }
+]

@@ -1,0 +1,8 @@
+{
+  "name": "multica-themes",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test scripts/lib.test.mjs"
+  }
+}

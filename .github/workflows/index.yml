@@ -1,0 +1,60 @@
+# Rebuilds index.json, the file the Multica server reads, from the latest
+# release of every listed theme. Runs when themes.json changes and every
+# hour, so a new release reaches the store after it passes the checks.
+name: Index
+on:
+  push:
+    branches: [main]
+    paths: [themes.json, scripts/**, .github/workflows/index.yml]
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+  issues: write
+concurrency:
+  group: index
+  cancel-in-progress: false
+jobs:
+  index:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: registry
+      - name: Check out multica-ai/multica
+        uses: actions/checkout@v4
+        with:
+          repository: multica-ai/multica
+          # The checks always come from the app's own sources. MULTICA_REF
+          # (a repository variable) can pin another ref; unset means main.
+          ref: ${{ vars.MULTICA_REF || 'main' }}
+          path: multica
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: multica/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: multica/pnpm-lock.yaml
+      - name: Install the theme tools
+        working-directory: multica
+        env:
+          ELECTRON_SKIP_BINARY_DOWNLOAD: "1"
+        run: |
+          pnpm install --frozen-lockfile --ignore-scripts
+          pnpm exec playwright install --with-deps chromium
+      - name: Build the index
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node registry/scripts/build-index.mjs --multica multica --report-issues
+      - name: Commit the index
+        working-directory: registry
+        run: |
+          git add index.json screenshots
+          if git diff --cached --quiet; then echo "No changes"; exit 0; fi
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -qm "Update the theme index"
+          git push

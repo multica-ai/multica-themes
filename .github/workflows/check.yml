@@ -1,0 +1,69 @@
+# Checks every pull request. Runs the registry's scripts from the base
+# branch and reads the pull request's themes.json as data only, so a pull
+# request cannot change how it is checked. The report is posted by
+# comment.yml, which has the write token this workflow never gets.
+name: Check
+on:
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: check-${{ github.event.number }}
+  cancel-in-progress: true
+jobs:
+  check:
+    name: Theme check
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out the registry at the base branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: registry
+          persist-credentials: false
+      - name: Read the proposed themes.json
+        working-directory: registry
+        run: |
+          git fetch --no-tags --depth=1 origin "refs/pull/${{ github.event.number }}/head"
+          git show FETCH_HEAD:themes.json > ../head-themes.json
+      - name: Check out multica-ai/multica
+        uses: actions/checkout@v4
+        with:
+          repository: multica-ai/multica
+          # The checks always come from the app's own sources. MULTICA_REF
+          # (a repository variable) can pin another ref; unset means main.
+          ref: ${{ vars.MULTICA_REF || 'main' }}
+          path: multica
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: multica/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: multica/pnpm-lock.yaml
+      - name: Install the theme tools
+        working-directory: multica
+        env:
+          ELECTRON_SKIP_BINARY_DOWNLOAD: "1"
+        run: |
+          pnpm install --frozen-lockfile --ignore-scripts
+          pnpm exec playwright install --with-deps chromium
+      - name: Check the themes
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node registry/scripts/check-pr.mjs --base registry/themes.json --head head-themes.json --multica multica --out report
+      - name: Record the pull request
+        if: always()
+        run: |
+          mkdir -p report
+          echo "${{ github.event.number }}" > report/pr.txt
+          echo "${{ github.event.pull_request.head.sha }}" > report/sha.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: theme-check
+          path: report
+          retention-days: 14
