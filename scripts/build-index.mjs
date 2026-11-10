@@ -2,14 +2,15 @@
 /**
  * Builds index.json, the file the Multica server reads: every theme of
  * themes.json with the one release that passed the checks, the SHA-256 of
- * its theme.zip and screenshots rendered from it.
+ * its theme.zip and screenshots rendered from it. index.json and
+ * screenshots/ live in the --index folder, a checkout of the `index` branch.
  *
  * A theme whose latest release fails keeps its last good release in the
  * index, and the failure is reported (and, with --report-issues, opened as
  * an issue). A theme that never passed is left out. Nothing is written when
  * nothing changed, so the scheduled run does not commit every hour.
  *
- * Run: node scripts/build-index.mjs --multica <dir> [--report-issues]
+ * Run: node scripts/build-index.mjs --multica <dir> --index <dir> [--report-issues]
  */
 
 import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -17,24 +18,29 @@ import { join, resolve } from "node:path";
 import { builtInThemeIds, checkEntry, fenced, readJson, validateRegistry } from "./lib.mjs";
 
 const argv = process.argv.slice(2);
-const multicaAt = argv.indexOf("--multica");
-if (multicaAt < 0 || !argv[multicaAt + 1]) {
-  console.error("Usage: node scripts/build-index.mjs --multica <dir> [--report-issues]");
+const option = (name) => {
+  const at = argv.indexOf(name);
+  return at >= 0 ? argv[at + 1] : undefined;
+};
+if (!option("--multica") || !option("--index")) {
+  console.error("Usage: node scripts/build-index.mjs --multica <dir> --index <dir> [--report-issues]");
   process.exit(2);
 }
-const multica = resolve(argv[multicaAt + 1]);
+const multica = resolve(option("--multica"));
 const reportIssues = argv.includes("--report-issues");
-const root = resolve(import.meta.dirname, "..");
+const registryRoot = resolve(import.meta.dirname, "..");
+const root = resolve(option("--index"));
+mkdirSync(root, { recursive: true });
 const token = process.env.GITHUB_TOKEN;
 
-const registry = validateRegistry(readFileSync(join(root, "themes.json"), "utf8"), await builtInThemeIds(multica));
+const registry = validateRegistry(readFileSync(join(registryRoot, "themes.json"), "utf8"), await builtInThemeIds(multica));
 if (registry.errors.length > 0) {
   console.error(`themes.json has problems:\n${registry.errors.join("\n")}`);
   process.exit(1);
 }
 const previous = readJson(join(root, "index.json"), { themes: [] });
 const previousById = new Map((previous.themes ?? []).map((theme) => [theme.id, theme]));
-const work = join(root, ".work");
+const work = join(registryRoot, ".work");
 rmSync(work, { recursive: true, force: true });
 
 const themes = [];
