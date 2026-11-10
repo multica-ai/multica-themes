@@ -66,7 +66,11 @@ if (head.errors.length > 0) {
     }
   }
 }
-lines.push("---", "_A maintainer merges once the checks pass. Checked with [`theme:check`](https://github.com/multica-ai/multica/blob/main/docs/theming.md) from multica-ai/multica `${process.env.MULTICA_REF || "main"}`._");
+lines.push(
+  "---",
+  "_A maintainer merges once the checks pass. Checked with [`theme:check`](https://github.com/multica-ai/multica/blob/main/docs/theming.md) " +
+    `from multica-ai/multica \`${process.env.MULTICA_REF || "main"}\`._`,
+);
 
 const ok = head.errors.length === 0 && results.every((r) => r.ok);
 writeFileSync(join(out, "report.md"), lines.join("\n") + "\n");
