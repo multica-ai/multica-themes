@@ -6,5 +6,13 @@
     "repo": "multica-ai/multica-theme-sample",
     "description": "Warm paper tones with ink-brown accents. The sample theme: fork it to start your own.",
     "modes": ["light", "dark"]
+  },
+  {
+    "id": "flexoki",
+    "name": "Flexoki",
+    "author": "Multica",
+    "repo": "multica-ai/multica-flexoki",
+    "description": "The inky colour scheme for prose and code by Steph Ango: warm paper, black ink, seven accents.",
+    "modes": ["light", "dark"]
   }
 ]
