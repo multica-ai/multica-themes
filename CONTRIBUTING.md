@@ -4,7 +4,7 @@ Themes are CSS and a manifest, in beta: the variables, `data-mc` anchors and man
 
 ## 1. Make the theme
 
-The quickest start is to fork [multica-ai/multica-theme-sample](https://github.com/multica-ai/multica-theme-sample), or to use **Duplicate theme** in Settings → Appearance in Multica. A theme is a folder with:
+The quickest start is to fork [multica-ai/multica-theme-sample](https://github.com/multica-ai/multica-theme-sample), or to pick a theme in Settings → Appearance in Multica and choose **Duplicate “…” as a new theme** from the **Import theme** menu. A theme is a folder with:
 
 - `manifest.json` with `apiVersion`, `id`, `name`, `author` and `version`, plus optional `description` and `options`;
 - `theme.css`;
