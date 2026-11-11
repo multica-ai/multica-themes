@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generated_at": "2026-11-11T05:15:22.196Z",
+  "generated_at": "2026-11-11T05:54:19.695Z",
   "themes": [
     {
       "id": "linen",
@@ -43,8 +43,8 @@
         "size": 2337
       },
       "screenshots": {
-        "light": "screenshots/flexoki/light.png",
-        "dark": "screenshots/flexoki/dark.png"
+        "light": "screenshots/flexoki/light-a0396d0b3cc0.png",
+        "dark": "screenshots/flexoki/dark-9cd7ef6b3a2d.png"
       },
       "updated_at": "2026-11-10T16:12:09Z"
     },
@@ -58,18 +58,18 @@
         "light",
         "dark"
       ],
-      "version": "1.1.0",
-      "tag": "v1.1.0",
+      "version": "1.2.0",
+      "tag": "v1.2.0",
       "package": {
-        "url": "https://github.com/multica-ai/multica-microsoft-dos/releases/download/v1.1.0/theme.zip",
-        "sha256": "24b81868d536f0ffe6a12f701b6fa43a14715a2e3b2830990b6aeb01ef9d14aa",
-        "size": 33869
+        "url": "https://github.com/multica-ai/multica-microsoft-dos/releases/download/v1.2.0/theme.zip",
+        "sha256": "c98b21266c88f4ee2ce7c535f676d9c9f7e7c51c3d512e1a319d46d7a6bffa28",
+        "size": 33902
       },
       "screenshots": {
-        "light": "screenshots/ms-dos/light.png",
-        "dark": "screenshots/ms-dos/dark.png"
+        "light": "screenshots/ms-dos/light-bb20c55da36a.png",
+        "dark": "screenshots/ms-dos/dark-2756a0dc1997.png"
       },
-      "updated_at": "2026-11-11T03:46:01Z"
+      "updated_at": "2026-11-11T05:47:24Z"
     }
   ]
 }
