@@ -15,7 +15,7 @@
 
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { builtInThemeIds, checkEntry, fenced, readJson, screenshotPath, validateRegistry } from "./lib.mjs";
+import { builtInThemeIds, checkEntry, fenced, readJson, retireScreenshots, screenshotPath, validateRegistry } from "./lib.mjs";
 
 const argv = process.argv.slice(2);
 const option = (name) => {
@@ -87,13 +87,31 @@ for (const entry of registry.entries) {
 }
 rmSync(work, { recursive: true, force: true });
 
-const shown = new Set(themes.flatMap((theme) => Object.values(theme.screenshots ?? {})));
+// Screenshots the index stops showing are deleted a day later, not now:
+// servers still holding the previous index ask for them.
 const shots = join(root, "screenshots");
-for (const id of existsSync(shots) ? readdirSync(shots) : []) {
-  const files = readdirSync(join(shots, id)).filter((file) => !shown.has(`screenshots/${id}/${file}`));
-  for (const file of files) rmSync(join(shots, id, file), { force: true });
+const retiredFile = join(shots, "retired.json");
+const ids = existsSync(shots) ? readdirSync(shots, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name) : [];
+const previousRetired = readJson(retiredFile, {});
+const { retired, remove } = retireScreenshots({
+  files: ids.flatMap((id) => readdirSync(join(shots, id)).map((file) => `screenshots/${id}/${file}`)),
+  shown: new Set(themes.flatMap((theme) => Object.values(theme.screenshots ?? {}))),
+  retired: previousRetired,
+  now: new Date(),
+});
+for (const file of remove) rmSync(join(root, file), { force: true });
+for (const id of ids) {
   if (readdirSync(join(shots, id)).length === 0) rmSync(join(shots, id), { recursive: true, force: true });
 }
+if (JSON.stringify(retired) !== JSON.stringify(previousRetired)) {
+  if (Object.keys(retired).length > 0) {
+    mkdirSync(shots, { recursive: true });
+    writeFileSync(retiredFile, JSON.stringify(retired, null, 2) + "\n");
+  } else {
+    rmSync(retiredFile, { force: true });
+  }
+}
+if (remove.length > 0) console.log(`removed ${remove.join(", ")}`);
 
 const comparable = (index) => JSON.stringify(index.themes ?? []);
 if (comparable({ themes }) !== comparable(previous)) {
