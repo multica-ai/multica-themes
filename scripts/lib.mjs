@@ -7,7 +7,7 @@
 
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -25,20 +25,94 @@ export async function builtInThemeIds(multica) {
   return BUILT_IN_THEMES.map((theme) => theme.id);
 }
 
+/** Problems with one theme's fields. `repos` holds the repositories listed so far. */
+function entryProblems(entry, builtIns, repos) {
+  const problems = [];
+  for (const key of Object.keys(entry)) if (!FIELDS.has(key)) problems.push(`unknown field "${key}"`);
+  if (typeof entry.id !== "string" || !ID.test(entry.id)) problems.push("id must be 1-40 characters of a-z, 0-9 and -");
+  else if (builtIns.includes(entry.id)) problems.push(`id "${entry.id}" is a built-in theme`);
+  const text = (key, max, required = true) => {
+    const value = entry[key];
+    if (value === undefined && !required) return;
+    if (typeof value !== "string" || value.trim() === "" || value.length > max) {
+      problems.push(`${key} must be text of at most ${max} characters`);
+    }
+  };
+  text("name", 60);
+  text("author", 60);
+  text("description", 300, false);
+  if (typeof entry.repo !== "string" || !REPO.test(entry.repo)) problems.push('repo must be "owner/name" on GitHub');
+  else if (repos.has(entry.repo.toLowerCase())) problems.push(`repo ${entry.repo} is listed twice`);
+  if (
+    !Array.isArray(entry.modes) ||
+    entry.modes.length === 0 ||
+    entry.modes.some((mode) => !MODES.includes(mode)) ||
+    new Set(entry.modes).size !== entry.modes.length
+  ) {
+    problems.push('modes must list "light", "dark" or both');
+  }
+  return problems;
+}
+
 /**
- * Checks themes.json: a list of entries with an id, name, author, the
- * theme's GitHub repository, an optional description and the modes it
- * supports. Returns the entries and every problem found.
+ * Checks the themes of a registry checkout: one `themes/<id>.json` file per
+ * theme, each an object with the id, name, author, the theme's GitHub
+ * repository, an optional description and the modes it supports. Returns
+ * the entries, sorted by file name, and every problem found, each naming
+ * its file.
  */
-export function validateRegistry(raw, builtIns = []) {
+export function validateRegistry(root, builtIns = []) {
+  // Until the move to themes/ lands, the Check workflow passes themes.json
+  // itself, and the base branch of that move still lists its themes there.
+  if (statSync(root).isFile()) return validateList(readFileSync(root, "utf8"), builtIns);
+  if (!existsSync(join(root, "themes"))) return validateList(readFileSync(join(root, "themes.json"), "utf8"), builtIns);
+  const dir = join(root, "themes");
   const errors = [];
+  const entries = [];
+  const repos = new Set();
+  const files = readdirSync(dir, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+  for (const file of files) {
+    const at = `themes/${file.name}`;
+    // Symlinks too: the pull request check must not read files outside the folder.
+    if (!file.isFile() || !file.name.endsWith(".json")) {
+      errors.push(`${at}: themes/ holds only <id>.json files`);
+      continue;
+    }
+    let entry;
+    try {
+      entry = JSON.parse(readFileSync(join(dir, file.name), "utf8"));
+    } catch (error) {
+      errors.push(`${at} is not valid JSON: ${error.message}`);
+      continue;
+    }
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
+      errors.push(`${at} must hold one theme, an object`);
+      continue;
+    }
+    const problems = entryProblems(entry, builtIns, repos);
+    if (typeof entry.id === "string" && ID.test(entry.id) && file.name !== `${entry.id}.json`) {
+      problems.unshift(`id "${entry.id}" does not match the file name; name the file ${entry.id}.json`);
+    }
+    if (problems.length > 0) {
+      errors.push(`${at}: ${problems.join("; ")}`);
+      continue;
+    }
+    repos.add(entry.repo.toLowerCase());
+    entries.push(entry);
+  }
+  return { entries, errors };
+}
+
+/** The registry's former layout: one themes.json list. */
+function validateList(raw, builtIns) {
   let list;
   try {
-    list = typeof raw === "string" ? JSON.parse(raw) : raw;
+    list = JSON.parse(raw);
   } catch (error) {
     return { entries: [], errors: [`themes.json is not valid JSON: ${error.message}`] };
   }
   if (!Array.isArray(list)) return { entries: [], errors: ["themes.json must be a list of themes"] };
+  const errors = [];
   const entries = [];
   const ids = new Set();
   const repos = new Set();
@@ -48,31 +122,8 @@ export function validateRegistry(raw, builtIns = []) {
       errors.push(`${at} must be an object`);
       return;
     }
-    const problems = [];
-    for (const key of Object.keys(entry)) if (!FIELDS.has(key)) problems.push(`unknown field "${key}"`);
-    if (typeof entry.id !== "string" || !ID.test(entry.id)) problems.push("id must be 1-40 characters of a-z, 0-9 and -");
-    else if (builtIns.includes(entry.id)) problems.push(`id "${entry.id}" is a built-in theme`);
-    else if (ids.has(entry.id)) problems.push(`id "${entry.id}" is listed twice`);
-    const text = (key, max, required = true) => {
-      const value = entry[key];
-      if (value === undefined && !required) return;
-      if (typeof value !== "string" || value.trim() === "" || value.length > max) {
-        problems.push(`${key} must be text of at most ${max} characters`);
-      }
-    };
-    text("name", 60);
-    text("author", 60);
-    text("description", 300, false);
-    if (typeof entry.repo !== "string" || !REPO.test(entry.repo)) problems.push('repo must be "owner/name" on GitHub');
-    else if (repos.has(entry.repo.toLowerCase())) problems.push(`repo ${entry.repo} is listed twice`);
-    if (
-      !Array.isArray(entry.modes) ||
-      entry.modes.length === 0 ||
-      entry.modes.some((mode) => !MODES.includes(mode)) ||
-      new Set(entry.modes).size !== entry.modes.length
-    ) {
-      problems.push('modes must list "light", "dark" or both');
-    }
+    const problems = entryProblems(entry, builtIns, repos);
+    if (ids.has(entry.id)) problems.push(`id "${entry.id}" is listed twice`);
     if (problems.length > 0) {
       errors.push(`${at}: ${problems.join("; ")}`);
       return;
