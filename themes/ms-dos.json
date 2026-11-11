@@ -1,0 +1,8 @@
+{
+  "id": "ms-dos",
+  "name": "MS-DOS",
+  "author": "Multica",
+  "repo": "multica-ai/multica-microsoft-dos",
+  "description": "The 16-colour DOS look with the IBM VGA font: DOS Shell in light mode, a text-mode screen in dark mode.",
+  "modes": ["light", "dark"]
+}

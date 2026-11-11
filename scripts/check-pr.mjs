@@ -4,7 +4,7 @@
  * release whose theme.zip passes the app's validator. Writes the report the
  * comment workflow posts.
  *
- * --base and --head are registry folders, or (until the move to themes/) themes.json files.
+ * --base and --head are registry folders; only their themes/ folders are read.
  *
  * Run: node scripts/check-pr.mjs --base <dir> --head <dir> --multica <dir> --out <dir>
  * Exits 1 when the pull request should not be merged.
