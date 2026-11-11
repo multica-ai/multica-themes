@@ -131,6 +131,13 @@ export async function download(url) {
 export const sha256 = (data) => createHash("sha256").update(data).digest("hex");
 
 /**
+ * Where the index keeps a screenshot: named by its content, so a new render
+ * (a new release, or the app's fixture page changing) gets a new URL and
+ * nothing that cached the old one keeps serving it.
+ */
+export const screenshotPath = (id, mode, png) => `screenshots/${id}/${mode}-${sha256(png).slice(0, 12)}.png`;
+
+/**
  * Runs the app's validator on a theme.zip and checks that it is the theme
  * and release the registry entry names.
  */

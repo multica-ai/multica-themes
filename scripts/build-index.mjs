@@ -13,9 +13,9 @@
  * Run: node scripts/build-index.mjs --multica <dir> --index <dir> [--report-issues]
  */
 
-import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { builtInThemeIds, checkEntry, fenced, readJson, validateRegistry } from "./lib.mjs";
+import { builtInThemeIds, checkEntry, fenced, readJson, screenshotPath, validateRegistry } from "./lib.mjs";
 
 const argv = process.argv.slice(2);
 const option = (name) => {
@@ -52,8 +52,9 @@ for (const entry of registry.entries) {
   if (result.ok && result.screenshots) {
     const screenshots = {};
     for (const [mode, file] of Object.entries(result.screenshots)) {
-      const path = `screenshots/${entry.id}/${mode}.png`;
-      if (!unchanged || !existsSync(join(root, path))) {
+      // Rendered every run: the fixture page can change while the release doesn't.
+      const path = screenshotPath(entry.id, mode, readFileSync(file));
+      if (!existsSync(join(root, path))) {
         mkdirSync(join(root, "screenshots", entry.id), { recursive: true });
         copyFileSync(file, join(root, path));
       }
@@ -86,9 +87,12 @@ for (const entry of registry.entries) {
 }
 rmSync(work, { recursive: true, force: true });
 
-const listed = new Set(themes.map((theme) => theme.id));
-for (const id of previousById.keys()) {
-  if (!listed.has(id)) rmSync(join(root, "screenshots", id), { recursive: true, force: true });
+const shown = new Set(themes.flatMap((theme) => Object.values(theme.screenshots ?? {})));
+const shots = join(root, "screenshots");
+for (const id of existsSync(shots) ? readdirSync(shots) : []) {
+  const files = readdirSync(join(shots, id)).filter((file) => !shown.has(`screenshots/${id}/${file}`));
+  for (const file of files) rmSync(join(shots, id, file), { force: true });
+  if (readdirSync(join(shots, id)).length === 0) rmSync(join(shots, id), { recursive: true, force: true });
 }
 
 const comparable = (index) => JSON.stringify(index.themes ?? []);

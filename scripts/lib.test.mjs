@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { changedEntries, fenced, tagMatchesVersion, validateRegistry } from "./lib.mjs";
+import { changedEntries, fenced, screenshotPath, tagMatchesVersion, validateRegistry } from "./lib.mjs";
 
 const linen = {
   id: "linen",
@@ -61,4 +61,11 @@ test("matches release tags to manifest versions", () => {
 
 test("keeps theme text inside its code block", () => {
   assert.equal(fenced(["a ``` b"]).split("```").length, 3);
+});
+
+test("names a screenshot by its content", () => {
+  const path = screenshotPath("linen", "dark", Buffer.from("one"));
+  assert.match(path, /^screenshots\/linen\/dark-[0-9a-f]{12}\.png$/);
+  assert.equal(screenshotPath("linen", "dark", Buffer.from("one")), path);
+  assert.notEqual(screenshotPath("linen", "dark", Buffer.from("two")), path);
 });
