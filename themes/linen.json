@@ -3,6 +3,9 @@
   "name": "Linen",
   "author": "Multica",
   "repo": "multica-ai/multica-theme-sample",
-  "description": "Warm paper tones with ink-brown accents. The sample theme: fork it to start your own.",
-  "modes": ["light", "dark"]
+  "description": "Warm paper tones, edited in a test pull request.",
+  "modes": [
+    "light",
+    "dark"
+  ]
 }
