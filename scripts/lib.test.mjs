@@ -82,23 +82,6 @@ test("rejects files that are not one theme", (t) => {
   ]);
 });
 
-test("still reads a registry that is one themes.json", (t) => {
-  const root = mkdtempSync(join(tmpdir(), "registry-"));
-  t.after(() => rmSync(root, { recursive: true, force: true }));
-  const ink = { ...linen, id: "ink", repo: "someone/ink" };
-  writeFileSync(join(root, "themes.json"), JSON.stringify([linen, ink]));
-  assert.deepEqual(validateRegistry(root), { entries: [linen, ink], errors: [] });
-  assert.deepEqual(validateRegistry(join(root, "themes.json")), { entries: [linen, ink], errors: [] });
-  writeFileSync(join(root, "themes.json"), JSON.stringify([linen, { ...linen, repo: "a/b" }, { ...linen, id: "x", repo: "Multica-AI/multica-theme-sample" }]));
-  const { errors } = validateRegistry(root);
-  assert.match(errors[0], /^Entry 2 \("linen"\): id "linen" is listed twice/);
-  assert.match(errors[1], /^Entry 3 \("x"\): repo .* listed twice/);
-  writeFileSync(join(root, "themes.json"), "{");
-  assert.match(validateRegistry(root).errors[0], /not valid JSON/);
-  writeFileSync(join(root, "themes.json"), "{}");
-  assert.match(validateRegistry(root).errors[0], /must be a list/);
-});
-
 test("finds added and changed entries", (t) => {
   const ink = { ...linen, id: "ink", repo: "someone/ink" };
   const base = validateRegistry(registry(t, { "linen.json": linen, "ink.json": ink })).entries;

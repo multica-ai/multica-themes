@@ -1,5 +1,5 @@
 # Rebuilds index.json, the file the Multica server reads, from the latest
-# release of every listed theme. Runs when themes.json changes and every
+# release of every listed theme. Runs when themes/ changes and every
 # hour, so a new release reaches the store after it passes the checks.
 #
 # index.json and screenshots/ live on the `index` branch: main only changes
@@ -9,7 +9,7 @@ name: Index
 on:
   push:
     branches: [main]
-    paths: [themes.json, scripts/**, .github/workflows/index.yml]
+    paths: [themes/**, scripts/**, .github/workflows/index.yml]
   schedule:
     - cron: "17 * * * *"
   workflow_dispatch:

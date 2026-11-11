@@ -7,7 +7,7 @@
 
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -62,10 +62,6 @@ function entryProblems(entry, builtIns, repos) {
  * its file.
  */
 export function validateRegistry(root, builtIns = []) {
-  // Until the move to themes/ lands, the Check workflow passes themes.json
-  // itself, and the base branch of that move still lists its themes there.
-  if (statSync(root).isFile()) return validateList(readFileSync(root, "utf8"), builtIns);
-  if (!existsSync(join(root, "themes"))) return validateList(readFileSync(join(root, "themes.json"), "utf8"), builtIns);
   const dir = join(root, "themes");
   const errors = [];
   const entries = [];
@@ -100,38 +96,6 @@ export function validateRegistry(root, builtIns = []) {
     repos.add(entry.repo.toLowerCase());
     entries.push(entry);
   }
-  return { entries, errors };
-}
-
-/** The registry's former layout: one themes.json list. */
-function validateList(raw, builtIns) {
-  let list;
-  try {
-    list = JSON.parse(raw);
-  } catch (error) {
-    return { entries: [], errors: [`themes.json is not valid JSON: ${error.message}`] };
-  }
-  if (!Array.isArray(list)) return { entries: [], errors: ["themes.json must be a list of themes"] };
-  const errors = [];
-  const entries = [];
-  const ids = new Set();
-  const repos = new Set();
-  list.forEach((entry, index) => {
-    const at = `Entry ${index + 1}${entry && typeof entry.id === "string" ? ` ("${entry.id}")` : ""}`;
-    if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
-      errors.push(`${at} must be an object`);
-      return;
-    }
-    const problems = entryProblems(entry, builtIns, repos);
-    if (ids.has(entry.id)) problems.push(`id "${entry.id}" is listed twice`);
-    if (problems.length > 0) {
-      errors.push(`${at}: ${problems.join("; ")}`);
-      return;
-    }
-    ids.add(entry.id);
-    repos.add(entry.repo.toLowerCase());
-    entries.push(entry);
-  });
   return { entries, errors };
 }
 
