@@ -7,7 +7,7 @@
 
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -26,33 +26,39 @@ export async function builtInThemeIds(multica) {
 }
 
 /**
- * Checks themes.json: a list of entries with an id, name, author, the
- * theme's GitHub repository, an optional description and the modes it
- * supports. Returns the entries and every problem found.
+ * Checks a registry folder, `themes/`: one `<id>.json` file per theme, each
+ * an object with the id, name, author, the theme's GitHub repository, an
+ * optional description and the modes it supports. Returns the entries,
+ * sorted by file name, and every problem found, each naming its file.
  */
-export function validateRegistry(raw, builtIns = []) {
+export function validateRegistry(dir, builtIns = []) {
   const errors = [];
-  let list;
-  try {
-    list = typeof raw === "string" ? JSON.parse(raw) : raw;
-  } catch (error) {
-    return { entries: [], errors: [`themes.json is not valid JSON: ${error.message}`] };
-  }
-  if (!Array.isArray(list)) return { entries: [], errors: ["themes.json must be a list of themes"] };
   const entries = [];
-  const ids = new Set();
   const repos = new Set();
-  list.forEach((entry, index) => {
-    const at = `Entry ${index + 1}${entry && typeof entry.id === "string" ? ` ("${entry.id}")` : ""}`;
+  const files = readdirSync(dir, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+  for (const file of files) {
+    const at = `themes/${file.name}`;
+    // Symlinks too: the pull request check must not read files outside the folder.
+    if (!file.isFile() || !file.name.endsWith(".json")) {
+      errors.push(`${at}: themes/ holds only <id>.json files`);
+      continue;
+    }
+    let entry;
+    try {
+      entry = JSON.parse(readFileSync(join(dir, file.name), "utf8"));
+    } catch (error) {
+      errors.push(`${at} is not valid JSON: ${error.message}`);
+      continue;
+    }
     if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
-      errors.push(`${at} must be an object`);
-      return;
+      errors.push(`${at} must hold one theme, an object`);
+      continue;
     }
     const problems = [];
     for (const key of Object.keys(entry)) if (!FIELDS.has(key)) problems.push(`unknown field "${key}"`);
     if (typeof entry.id !== "string" || !ID.test(entry.id)) problems.push("id must be 1-40 characters of a-z, 0-9 and -");
+    else if (file.name !== `${entry.id}.json`) problems.push(`id "${entry.id}" does not match the file name; name the file ${entry.id}.json`);
     else if (builtIns.includes(entry.id)) problems.push(`id "${entry.id}" is a built-in theme`);
-    else if (ids.has(entry.id)) problems.push(`id "${entry.id}" is listed twice`);
     const text = (key, max, required = true) => {
       const value = entry[key];
       if (value === undefined && !required) return;
@@ -75,12 +81,11 @@ export function validateRegistry(raw, builtIns = []) {
     }
     if (problems.length > 0) {
       errors.push(`${at}: ${problems.join("; ")}`);
-      return;
+      continue;
     }
-    ids.add(entry.id);
     repos.add(entry.repo.toLowerCase());
     entries.push(entry);
-  });
+  }
   return { entries, errors };
 }
 

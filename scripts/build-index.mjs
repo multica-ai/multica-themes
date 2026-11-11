@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Builds index.json, the file the Multica server reads: every theme of
- * themes.json with the one release that passed the checks, the SHA-256 of
+ * Builds index.json, the file the Multica server reads: every theme in
+ * themes/ with the one release that passed the checks, the SHA-256 of
  * its theme.zip and screenshots rendered from it. index.json and
  * screenshots/ live in the --index folder, a checkout of the `index` branch.
  *
@@ -33,19 +33,24 @@ const root = resolve(option("--index"));
 mkdirSync(root, { recursive: true });
 const token = process.env.GITHUB_TOKEN;
 
-const registry = validateRegistry(readFileSync(join(registryRoot, "themes.json"), "utf8"), await builtInThemeIds(multica));
+const registry = validateRegistry(join(registryRoot, "themes"), await builtInThemeIds(multica));
 if (registry.errors.length > 0) {
-  console.error(`themes.json has problems:\n${registry.errors.join("\n")}`);
+  console.error(`The theme files have problems:\n${registry.errors.join("\n")}`);
   process.exit(1);
 }
 const previous = readJson(join(root, "index.json"), { themes: [] });
 const previousById = new Map((previous.themes ?? []).map((theme) => [theme.id, theme]));
+// Listed themes keep their place and new ones go last: the store shows themes
+// with the same download count in index order.
+const position = new Map([...previousById.keys()].map((id, at) => [id, at]));
+const place = (entry) => position.get(entry.id) ?? position.size;
+const entries = registry.entries.sort((a, b) => place(a) - place(b));
 const work = join(registryRoot, ".work");
 rmSync(work, { recursive: true, force: true });
 
 const themes = [];
 const failures = [];
-for (const entry of registry.entries) {
+for (const entry of entries) {
   const last = previousById.get(entry.id);
   const result = await checkEntry(entry, { multica, work, token });
   const unchanged = last && result.package && last.tag === result.tag && last.package?.sha256 === result.package.sha256;

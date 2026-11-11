@@ -27,7 +27,7 @@ The sample's [release workflow](https://github.com/multica-ai/multica-theme-samp
 
 ## 3. Open a pull request here
 
-Add an entry to the end of [`themes.json`](themes.json):
+Add one file, `themes/<id>.json`, named by the theme's `id`, next to the others in [`themes/`](themes). On GitHub, open the folder and choose **Add file → Create new file**; GitHub forks the repository for you and opens the pull request. Each theme has its own file, so pull requests for different themes never conflict. For example, `themes/your-theme.json`:
 
 ```json
 {
@@ -40,7 +40,7 @@ Add an entry to the end of [`themes.json`](themes.json):
 }
 ```
 
-- `id` is the manifest's `id`: 1–40 characters of `a-z`, `0-9` and `-`, not taken by another theme or a built-in one.
+- `id` is the manifest's `id` and the file's name: 1–40 characters of `a-z`, `0-9` and `-`, not taken by another theme or a built-in one.
 - `modes` lists the modes the theme is designed for. The store shows a screenshot of each.
 - Keep `name` and `author` to 60 characters and `description` to 300.
 
@@ -50,7 +50,7 @@ The **Theme check** runs on the pull request and comments with what it found and
 
 ## Updates
 
-Publish a new release. The store picks it up within about an hour, once it passes the checks, and people who installed the theme see **Update**. You don't need another pull request unless the name, description, repository or modes change.
+Publish a new release. The store picks it up within about an hour, once it passes the checks, and people who installed the theme see **Update**. You don't need another pull request unless the name, description, repository or modes change; then edit your theme's file.
 
 If a release fails the checks, the store keeps the previous one and an issue is opened here with the problems.
 

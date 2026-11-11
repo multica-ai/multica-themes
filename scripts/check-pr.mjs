@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 /**
- * Checks a pull request to the registry: themes.json must be valid, and every
- * theme it adds or changes must have a latest release whose theme.zip passes
- * the app's validator. Writes the report the comment workflow posts.
+ * Checks a pull request to the registry: every file in its themes/ folder
+ * must be valid, and every theme it adds or changes must have a latest
+ * release whose theme.zip passes the app's validator. Writes the report the
+ * comment workflow posts.
  *
- * Run: node scripts/check-pr.mjs --base <themes.json> --head <themes.json> --multica <dir> --out <dir>
+ * Run: node scripts/check-pr.mjs --base <themes dir> --head <themes dir> --multica <dir> --out <dir>
  * Exits 1 when the pull request should not be merged.
  */
 
-import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { copyFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { builtInThemeIds, changedEntries, checkEntry, fenced, validateRegistry } from "./lib.mjs";
 
@@ -17,7 +18,7 @@ const args = Object.fromEntries(
 );
 for (const key of ["base", "head", "multica", "out"]) {
   if (!args[key]) {
-    console.error("Usage: node scripts/check-pr.mjs --base <themes.json> --head <themes.json> --multica <dir> --out <dir>");
+    console.error("Usage: node scripts/check-pr.mjs --base <themes dir> --head <themes dir> --multica <dir> --out <dir>");
     process.exit(2);
   }
 }
@@ -26,8 +27,8 @@ const out = resolve(args.out);
 mkdirSync(out, { recursive: true });
 
 const builtIns = await builtInThemeIds(multica);
-const base = validateRegistry(readFileSync(args.base, "utf8"), builtIns).entries;
-const head = validateRegistry(readFileSync(args.head, "utf8"), builtIns);
+const base = validateRegistry(args.base, builtIns).entries;
+const head = validateRegistry(args.head, builtIns);
 const changed = head.errors.length === 0 ? changedEntries(base, head.entries) : [];
 
 const results = [];
@@ -37,9 +38,9 @@ for (const entry of changed) {
 
 const lines = ["<!-- multica-themes-check -->", "## Theme check", ""];
 if (head.errors.length > 0) {
-  lines.push("✗ **themes.json has problems:**", "", fenced(head.errors), "");
+  lines.push("✗ **The theme files have problems:**", "", fenced(head.errors), "");
 } else if (changed.length === 0) {
-  lines.push("No themes are added or changed in `themes.json`.", "");
+  lines.push("No themes are added or changed in `themes/`.", "");
 } else {
   lines.push("| Theme | Release | Result |", "| --- | --- | --- |");
   for (const r of results) {

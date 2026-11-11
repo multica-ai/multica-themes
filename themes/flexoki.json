@@ -1,0 +1,8 @@
+{
+  "id": "flexoki",
+  "name": "Flexoki",
+  "author": "Multica",
+  "repo": "multica-ai/multica-flexoki",
+  "description": "The inky colour scheme for prose and code by Steph Ango: warm paper, black ink, seven accents.",
+  "modes": ["light", "dark"]
+}
