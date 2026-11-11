@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { changedEntries, fenced, tagMatchesVersion, validateRegistry } from "./lib.mjs";
+import { changedEntries, fenced, retireScreenshots, screenshotPath, tagMatchesVersion, validateRegistry } from "./lib.mjs";
 
 const linen = {
   id: "linen",
@@ -61,4 +61,33 @@ test("matches release tags to manifest versions", () => {
 
 test("keeps theme text inside its code block", () => {
   assert.equal(fenced(["a ``` b"]).split("```").length, 3);
+});
+
+test("names a screenshot by its content", () => {
+  const path = screenshotPath("linen", "dark", Buffer.from("one"));
+  assert.match(path, /^screenshots\/linen\/dark-[0-9a-f]{12}\.png$/);
+  assert.equal(screenshotPath("linen", "dark", Buffer.from("one")), path);
+  assert.notEqual(screenshotPath("linen", "dark", Buffer.from("two")), path);
+});
+
+test("keeps a screenshot the index stopped showing for a day, then deletes it", () => {
+  const shown = new Set(["screenshots/linen/light-new.png"]);
+  const files = ["screenshots/linen/light-new.png", "screenshots/linen/light.png"];
+  const at = (iso) => new Date(iso);
+
+  const first = retireScreenshots({ files, shown, retired: {}, now: at("2026-11-11T05:00:00Z") });
+  assert.deepEqual(first, { retired: { "screenshots/linen/light.png": "2026-11-11T05:00:00.000Z" }, remove: [] });
+
+  const soon = retireScreenshots({ files, shown, retired: first.retired, now: at("2026-11-11T05:11:00Z") });
+  assert.deepEqual(soon, first);
+
+  const later = retireScreenshots({ files, shown, retired: first.retired, now: at("2026-11-12T05:00:00Z") });
+  assert.deepEqual(later, { retired: {}, remove: ["screenshots/linen/light.png"] });
+});
+
+test("forgets the retirement of a screenshot the index shows again", () => {
+  const files = ["screenshots/linen/light.png"];
+  const retired = { "screenshots/linen/light.png": "2026-11-11T05:00:00.000Z" };
+  const now = new Date("2026-11-13T00:00:00Z");
+  assert.deepEqual(retireScreenshots({ files, shown: new Set(files), retired, now }), { retired: {}, remove: [] });
 });

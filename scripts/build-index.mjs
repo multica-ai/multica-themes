@@ -13,9 +13,9 @@
  * Run: node scripts/build-index.mjs --multica <dir> --index <dir> [--report-issues]
  */
 
-import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { builtInThemeIds, checkEntry, fenced, readJson, validateRegistry } from "./lib.mjs";
+import { builtInThemeIds, checkEntry, fenced, readJson, retireScreenshots, screenshotPath, validateRegistry } from "./lib.mjs";
 
 const argv = process.argv.slice(2);
 const option = (name) => {
@@ -52,8 +52,9 @@ for (const entry of registry.entries) {
   if (result.ok && result.screenshots) {
     const screenshots = {};
     for (const [mode, file] of Object.entries(result.screenshots)) {
-      const path = `screenshots/${entry.id}/${mode}.png`;
-      if (!unchanged || !existsSync(join(root, path))) {
+      // Rendered every run: the fixture page can change while the release doesn't.
+      const path = screenshotPath(entry.id, mode, readFileSync(file));
+      if (!existsSync(join(root, path))) {
         mkdirSync(join(root, "screenshots", entry.id), { recursive: true });
         copyFileSync(file, join(root, path));
       }
@@ -86,10 +87,31 @@ for (const entry of registry.entries) {
 }
 rmSync(work, { recursive: true, force: true });
 
-const listed = new Set(themes.map((theme) => theme.id));
-for (const id of previousById.keys()) {
-  if (!listed.has(id)) rmSync(join(root, "screenshots", id), { recursive: true, force: true });
+// Screenshots the index stops showing are deleted a day later, not now:
+// servers still holding the previous index ask for them.
+const shots = join(root, "screenshots");
+const retiredFile = join(shots, "retired.json");
+const ids = existsSync(shots) ? readdirSync(shots, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name) : [];
+const previousRetired = readJson(retiredFile, {});
+const { retired, remove } = retireScreenshots({
+  files: ids.flatMap((id) => readdirSync(join(shots, id)).map((file) => `screenshots/${id}/${file}`)),
+  shown: new Set(themes.flatMap((theme) => Object.values(theme.screenshots ?? {}))),
+  retired: previousRetired,
+  now: new Date(),
+});
+for (const file of remove) rmSync(join(root, file), { force: true });
+for (const id of ids) {
+  if (readdirSync(join(shots, id)).length === 0) rmSync(join(shots, id), { recursive: true, force: true });
 }
+if (JSON.stringify(retired) !== JSON.stringify(previousRetired)) {
+  if (Object.keys(retired).length > 0) {
+    mkdirSync(shots, { recursive: true });
+    writeFileSync(retiredFile, JSON.stringify(retired, null, 2) + "\n");
+  } else {
+    rmSync(retiredFile, { force: true });
+  }
+}
+if (remove.length > 0) console.log(`removed ${remove.join(", ")}`);
 
 const comparable = (index) => JSON.stringify(index.themes ?? []);
 if (comparable({ themes }) !== comparable(previous)) {

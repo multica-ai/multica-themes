@@ -131,6 +131,36 @@ export async function download(url) {
 export const sha256 = (data) => createHash("sha256").update(data).digest("hex");
 
 /**
+ * Where the index keeps a screenshot: named by its content, so a new render
+ * (a new release, or the app's fixture page changing) gets a new URL and
+ * nothing that cached the old one keeps serving it.
+ */
+export const screenshotPath = (id, mode, png) => `screenshots/${id}/${mode}-${sha256(png).slice(0, 12)}.png`;
+
+/**
+ * How long a screenshot stays after the index stops showing it. A Multica
+ * server caches the index for ten minutes, and keeps serving its copy while
+ * the registry can't be reached, so it can still ask for the old file.
+ */
+export const RETIRED_SCREENSHOT_DAYS = 1;
+
+/**
+ * Sorts the screenshot files the index no longer shows into those to delete
+ * and those to keep. `retired` records when each was first seen unshown.
+ */
+export function retireScreenshots({ files, shown, retired, now }) {
+  const keep = {};
+  const remove = [];
+  for (const file of files) {
+    if (shown.has(file)) continue;
+    const since = Number.isNaN(Date.parse(retired[file])) ? now.toISOString() : retired[file];
+    if (now.getTime() - Date.parse(since) >= RETIRED_SCREENSHOT_DAYS * 24 * 60 * 60 * 1000) remove.push(file);
+    else keep[file] = since;
+  }
+  return { retired: keep, remove };
+}
+
+/**
  * Runs the app's validator on a theme.zip and checks that it is the theme
  * and release the registry entry names.
  */
