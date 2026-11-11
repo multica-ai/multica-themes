@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generated_at": "2026-11-10T19:04:25.545Z",
+  "generated_at": "2026-11-11T03:47:29.358Z",
   "themes": [
     {
       "id": "linen",
@@ -58,18 +58,18 @@
         "light",
         "dark"
       ],
-      "version": "1.0.0",
-      "tag": "v1.0.0",
+      "version": "1.1.0",
+      "tag": "v1.1.0",
       "package": {
-        "url": "https://github.com/multica-ai/multica-microsoft-dos/releases/download/v1.0.0/theme.zip",
-        "sha256": "95f3cc2b136ad9a6c6e5d1da875261dd7cb04599b5930cd024a4ffe9a0b8d59d",
-        "size": 32911
+        "url": "https://github.com/multica-ai/multica-microsoft-dos/releases/download/v1.1.0/theme.zip",
+        "sha256": "24b81868d536f0ffe6a12f701b6fa43a14715a2e3b2830990b6aeb01ef9d14aa",
+        "size": 33869
       },
       "screenshots": {
         "light": "screenshots/ms-dos/light.png",
         "dark": "screenshots/ms-dos/dark.png"
       },
-      "updated_at": "2026-11-10T19:01:02Z"
+      "updated_at": "2026-11-11T03:46:01Z"
     }
   ]
 }
