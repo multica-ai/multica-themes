@@ -1,0 +1,8 @@
+{
+  "id": "lisa",
+  "name": "Lisa",
+  "author": "Jiayuan Zhang",
+  "repo": "forrestchang/multica-lisa",
+  "description": "The Apple Lisa Office System of 1983: one-bit black and white, the Lisa system font, a dithered desktop, inverted selection and hard drop shadows. Dark mode is inverse video.",
+  "modes": ["light", "dark"]
+}
