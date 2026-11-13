@@ -1,0 +1,8 @@
+{
+  "id": "mavericks",
+  "name": "Mavericks",
+  "author": "Jiayuan Zhang",
+  "repo": "forrestchang/multica-mavericks",
+  "description": "OS X 10.9 Mavericks, the last Aqua release: Lucida Grande, a blue-grey source list with Aqua blue selection, gradient push buttons, Finder tag colours and Xcode 5 code colours. Blue or Graphite. Dark mode follows its HUD and Mission Control charcoal.",
+  "modes": ["light", "dark"]
+}
