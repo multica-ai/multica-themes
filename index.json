@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generated_at": "2026-11-13T21:00:48.116Z",
+  "generated_at": "2026-11-13T22:00:33.520Z",
   "themes": [
     {
       "id": "linen",
@@ -127,18 +127,18 @@
         "light",
         "dark"
       ],
-      "version": "1.0.1",
-      "tag": "v1.0.1",
+      "version": "1.1.0",
+      "tag": "v1.1.0",
       "package": {
-        "url": "https://github.com/forrestchang/multica-mavericks/releases/download/v1.0.1/theme.zip",
-        "sha256": "4f6cacfd9225bc5ed2ce3760388be15ec1edc916bf1bd8d484063954bb28ae9f",
-        "size": 6514
+        "url": "https://github.com/forrestchang/multica-mavericks/releases/download/v1.1.0/theme.zip",
+        "sha256": "e60d13c0bf43a790ca04d04d2763f68abedf3471fad5b86bccee98caa9f715cd",
+        "size": 8359
       },
       "screenshots": {
-        "light": "screenshots/mavericks/light-1faa73505d56.png",
-        "dark": "screenshots/mavericks/dark-157fbbc7a88b.png"
+        "light": "screenshots/mavericks/light-f097952940f6.png",
+        "dark": "screenshots/mavericks/dark-d8b7ab90001a.png"
       },
-      "updated_at": "2026-11-13T20:56:45Z"
+      "updated_at": "2026-11-13T21:28:25Z"
     }
   ]
 }
