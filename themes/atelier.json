@@ -1,0 +1,8 @@
+{
+  "id": "atelier",
+  "name": "Atelier Graphite",
+  "author": "lthero",
+  "repo": "lthero-big/multica-theme-atelier",
+  "description": "Warm graphite layers with a single accent dot. Light mode pairs a paper-white page with an ink sidebar and ink code blocks; thirteen options cover accent, density, corners and shapes.",
+  "modes": ["light", "dark"]
+}
