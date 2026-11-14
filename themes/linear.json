@@ -1,0 +1,8 @@
+{
+  "id": "linear",
+  "name": "Linear",
+  "author": "Jiayuan Zhang",
+  "repo": "forrestchang/multica-linear",
+  "description": "Linear's 2026 desktop design, measured from the app: neutral greys, the sidebar on the frame beside one rounded inset canvas, 44px rows, round buttons, grey priority bars, outlined labels and an indigo accent. Six accents and three densities.",
+  "modes": ["light", "dark"]
+}
