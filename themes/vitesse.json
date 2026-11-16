@@ -1,0 +1,8 @@
+{
+  "id": "vitesse",
+  "name": "Vitesse",
+  "author": "Multica",
+  "repo": "zwmmm/multica-vitesse",
+  "description": "Anthony Fu's Vitesse color palette for Multica: muted green accents, warm gray text, and Standard, Soft and Black variants.",
+  "modes": ["light", "dark"]
+}
