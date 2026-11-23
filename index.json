@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generated_at": "2026-11-23T07:41:54.066Z",
+  "generated_at": "2026-11-23T20:13:19.216Z",
   "themes": [
     {
       "id": "linen",
@@ -196,18 +196,18 @@
         "light",
         "dark"
       ],
-      "version": "1.2.7",
-      "tag": "v1.2.7",
+      "version": "1.2.8",
+      "tag": "v1.2.8",
       "package": {
-        "url": "https://github.com/gooyoung/multica-theme-braun/releases/download/v1.2.7/theme.zip",
-        "sha256": "d0e6f188e04b3e563e3a9a769ecdba5ceef933b46bfc00c91ad17a91b702bc21",
-        "size": 30599
+        "url": "https://github.com/gooyoung/multica-theme-braun/releases/download/v1.2.8/theme.zip",
+        "sha256": "4561e4908770db83ac015224bf83f57c2d47ece181f74520e5193f955d878d71",
+        "size": 30597
       },
       "screenshots": {
-        "light": "screenshots/braun/light-4848c35b4ba1.png",
-        "dark": "screenshots/braun/dark-5da13f3fb7c4.png"
+        "light": "screenshots/braun/light-5d1e154208a5.png",
+        "dark": "screenshots/braun/dark-f2ce4b42c37c.png"
       },
-      "updated_at": "2026-11-20T08:54:52Z"
+      "updated_at": "2026-11-23T09:02:48Z"
     },
     {
       "id": "fathom",
