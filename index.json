@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generated_at": "2026-11-23T00:17:01.916Z",
+  "generated_at": "2026-11-23T05:06:32.829Z",
   "themes": [
     {
       "id": "linen",
@@ -182,7 +182,7 @@
       },
       "screenshots": {
         "light": "screenshots/fatfish-deepsea/light-05ea7c8e6a8f.png",
-        "dark": "screenshots/fatfish-deepsea/dark-831eb23df1f9.png"
+        "dark": "screenshots/fatfish-deepsea/dark-29413a44e495.png"
       },
       "updated_at": "2026-11-18T01:50:04Z"
     },
@@ -231,6 +231,29 @@
         "dark": "screenshots/fathom/dark-5767db822344.png"
       },
       "updated_at": "2026-11-21T09:38:48Z"
+    },
+    {
+      "id": "cobalt",
+      "name": "Cobalt",
+      "author": "Seeridia",
+      "repo": "Seeridia/multica-theme-cobalt",
+      "description": "A Multica theme with cobalt-blue actions, cool neutral surfaces, and light and dark modes.",
+      "modes": [
+        "light",
+        "dark"
+      ],
+      "version": "1.0.0",
+      "tag": "v1.0.0",
+      "package": {
+        "url": "https://github.com/Seeridia/multica-theme-cobalt/releases/download/v1.0.0/theme.zip",
+        "sha256": "eff0785b7607acad6d8c4b6b5eba46842920d085c9b63465bff50855ef7d1d1e",
+        "size": 1825
+      },
+      "screenshots": {
+        "light": "screenshots/cobalt/light-144b89669032.png",
+        "dark": "screenshots/cobalt/dark-871187e62002.png"
+      },
+      "updated_at": "2026-11-22T05:47:21Z"
     }
   ]
 }
