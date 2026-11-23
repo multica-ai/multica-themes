@@ -1,0 +1,11 @@
+{
+  "id": "cobalt",
+  "name": "Cobalt",
+  "author": "Seeridia",
+  "repo": "Seeridia/multica-theme-cobalt",
+  "description": "A Multica theme with cobalt-blue actions, cool neutral surfaces, and light and dark modes.",
+  "modes": [
+    "light",
+    "dark"
+  ]
+}
