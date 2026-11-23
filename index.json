@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generated_at": "2026-11-23T05:06:32.829Z",
+  "generated_at": "2026-11-23T07:41:54.066Z",
   "themes": [
     {
       "id": "linen",
@@ -182,7 +182,7 @@
       },
       "screenshots": {
         "light": "screenshots/fatfish-deepsea/light-05ea7c8e6a8f.png",
-        "dark": "screenshots/fatfish-deepsea/dark-29413a44e495.png"
+        "dark": "screenshots/fatfish-deepsea/dark-6494f2b35310.png"
       },
       "updated_at": "2026-11-18T01:50:04Z"
     },
